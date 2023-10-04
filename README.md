@@ -41,6 +41,10 @@ ChatPDF generates embeddings from OpenAI embedding model and stores them in Pine
 4. Update the OpenAI, Pinecone keys, MongoDB creds 
 5. Run `npm run dev` to start the project
 
+## Challenges
+
+ 1.Selecting right tech-stack for app is challenge for me, I used NextJS for frontend and backend also ,because NextJS provides build in features that makes easy and fast to code.
+ 2.Pinecone free tier limitation: Pinecone allows only one index for free, so I needed to delete the existing index every time a new document was uploaded and append the new vector index for the new data. This was a big challenge.
 
 ### Tech stack
 
