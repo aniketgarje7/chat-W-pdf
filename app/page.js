@@ -1,95 +1,99 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+import UploadPdf from "@/components/Upload/UploadPdf";
+import { useState, useEffect } from "react";
+import NavbarComponent from "@/components/NavbarComponent";
+import ShowPdf from "@/components/Upload/ShowPdf";
+import { deleteObject } from "firebase/storage";
+import { deleteFile } from "@/lib/Firebase/firebase-storage-delete";
+import Loader from "@/components/Loader";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter()
+  useEffect(() => {
+    const id = localStorage.getItem("chat-pdf-id");
+    console.log(id, "id");
+    if (id) {
+      const options = {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ id: id }),
+      };
+      setIsLoading(true);
+      fetch(`http://localhost:3000/api/data`, options)
+        .then((res) => res.json())
+        .then((data) => {
+          setData(data.data.dataArray);
+          setIsLoading(false);
+        })
+        .catch((e) => console.log(e));
+    }
+  }, []);
+
+  const deletepdf = async (pdf, key) => {
+    await deleteFile(pdf.fileName);
+    const id = localStorage.getItem("chat-pdf-id");
+    const updateData = [...data];
+    updateData.splice(key, 1);
+    setData(updateData);
+
+    const options = {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ id: id, dataArray: updateData }),
+    };
+    setIsLoading(true);
+    fetch("http://localhost:3000/api/data", options)
+      .then((res) => res.json())
+      .then((data) => {
+        setIsLoading(false);
+        console.log(data);
+      })
+      .catch((e) => console.log(e));
+  };
+
+  const handleOpen = (fileName) => {
+    if (typeof fileName !== "string") {
+      return;
+    }
+  
+    const options = {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ fileName: fileName }),
+    };
+    setIsLoading(true);
+    const api = "http://localhost:3000";
+    fetch(`${api}/api/changeIndex`, options)
+      .then((res) => res.json())
+      .then((data) => {
+        localStorage.setItem("current_file", fileName);
+        console.log(data.id);
+        setIsLoading(false);
+        router.push("/chat", { scroll: false });
+      })
+      .catch((e) => console.log(e, "error"));
+  };
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div className="container-fluid">
+      <div className="bg-dark">
+        <NavbarComponent />
+      </div>
+      <div>
+        <UploadPdf isLoading={isLoading} setIsLoading={setIsLoading} />
+      </div>
+      <div className="container">
+        <div className="row">
+          {data.map((pdf, key) => (
+            <div className="col-lg-4 col-md-6" key={key}>
+              <ShowPdf fileName={pdf.fileName} setFiles={() => deletepdf(pdf, key)} handleOpen={handleOpen} />
+            </div>
+          ))}
         </div>
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+      {isLoading && <Loader />}
+    </div>
+  );
 }
