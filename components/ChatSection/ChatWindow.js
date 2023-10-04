@@ -10,7 +10,7 @@ import { useEffect } from "react";
 
 const ChatWindow = ({ data, indexName, isLoading, setIsLoading }) => {
   const [chats, setChat] = useState([]);
-  const greeting = "I am a multilingual document assistant here to help you with any questions you have about the uploaded document.";
+  const greeting = "I am a AI powered document assistant here to help you with any questions you have about the uploaded document.";
   const [query, setQuery] = useState("");
   const [metadata, setMetaData] = useState();
 
