@@ -4,7 +4,6 @@ import { connectDB } from "@/lib/MongoDB/mongoDB";
 
 export async function POST(req,res){
     const {id} = await req.json();
-    console.log(id,'id')
     await connectDB();
     try{
         const detail = await DataModel.findOne({_id:id});
@@ -19,7 +18,6 @@ export async function POST(req,res){
 
 export async function PUT(req,res){
     const {id,dataArray} = await req.json();
-    console.log(id,'id')
     await connectDB();
     try{
         const detail = await DataModel.findByIdAndUpdate(id,{dataArray:dataArray});

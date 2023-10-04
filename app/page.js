@@ -11,10 +11,10 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter()
+  const router = useRouter();
+
   useEffect(() => {
     const id = localStorage.getItem("chat-pdf-id");
-    console.log(id, "id");
     if (id) {
       const options = {
         method: "POST",
@@ -22,7 +22,7 @@ export default function Home() {
         body: JSON.stringify({ id: id }),
       };
       setIsLoading(true);
-      fetch(`http://localhost:3000/api/data`, options)
+      fetch(`${process.env.NEXT_PUBLIC_CHAT_API}/api/data`, options)
         .then((res) => res.json())
         .then((data) => {
           setData(data.data.dataArray);
@@ -33,6 +33,7 @@ export default function Home() {
   }, []);
 
   const deletepdf = async (pdf, key) => {
+
     await deleteFile(pdf.fileName);
     const id = localStorage.getItem("chat-pdf-id");
     const updateData = [...data];
@@ -45,7 +46,7 @@ export default function Home() {
       body: JSON.stringify({ id: id, dataArray: updateData }),
     };
     setIsLoading(true);
-    fetch("http://localhost:3000/api/data", options)
+    fetch(`${process.env.NEXT_PUBLIC_CHAT_API}/api/data`, options)
       .then((res) => res.json())
       .then((data) => {
         setIsLoading(false);
@@ -58,24 +59,27 @@ export default function Home() {
     if (typeof fileName !== "string") {
       return;
     }
-  
     const options = {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ fileName: fileName }),
     };
+
     setIsLoading(true);
-    const api = "http://localhost:3000";
+    const api = process.env.NEXT_PUBLIC_CHAT_API;
     fetch(`${api}/api/changeIndex`, options)
       .then((res) => res.json())
       .then((data) => {
         localStorage.setItem("current_file", fileName);
-        console.log(data.id);
         setIsLoading(false);
         router.push("/chat", { scroll: false });
       })
-      .catch((e) => console.log(e, "error"));
+      .catch((e) =>{
+        console.log(e, "error");
+        setIsLoading(false);
+      });
   };
+
   return (
     <div className="container-fluid">
       <div className="bg-dark">

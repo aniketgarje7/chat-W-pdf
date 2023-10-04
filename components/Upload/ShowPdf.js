@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 const ShowPdf = ({ fileName, setFiles,handleOpen }) => {
   const router = useRouter();
   const [flag, setFlag] = useState(false);
-  console.log(fileName[0].name, "name");
   useEffect(() => {
     if (typeof fileName !== "string") {
       setFlag(true);

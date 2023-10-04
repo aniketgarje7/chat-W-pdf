@@ -70,14 +70,12 @@ const UploadPdf = ({ isLoading, setIsLoading }) => {
   );
 
   const handleUpload = async () => {
-    console.log(file, "files");
     try {
       uploadFile(file, setProgress);
     } catch (e) {
       console.log(e);
     }
   };
-  console.log(progress, "progress");
 
   useEffect(() => {
     if (progress !== 100 || !file) {
@@ -90,7 +88,7 @@ const UploadPdf = ({ isLoading, setIsLoading }) => {
       body: JSON.stringify({ fileName: file.name, id: id ? id : null }),
     };
     setIsLoading(true);
-    const api = "http://localhost:3000";
+    const api = process.env.NEXT_PUBLIC_CHAT_API;
     fetch(`${api}/api/createdb`, options)
       .then((res) => res.json())
       .then((data) => {
@@ -101,7 +99,6 @@ const UploadPdf = ({ isLoading, setIsLoading }) => {
         router.push("/chat", { scroll: false });
       })
       .catch((e) => console.log(e, "error"));
-    //  setProgress(0);
   }, [progress]);
 
   const handleOpen = () => {};

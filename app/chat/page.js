@@ -3,6 +3,7 @@ import NavbarComponent from "@/components/NavbarComponent";
 import ChatWindow from "@/components/ChatSection/ChatWindow";
 import { useEffect, useState } from "react";
 import Loader from "@/components/Loader";
+import slugify from "slugify";
 
 export default function Chat(){
     const [data,setData] = useState();
@@ -11,7 +12,6 @@ export default function Chat(){
 
     useEffect(()=>{
         const id = localStorage.getItem('chat-pdf-id');
-        console.log(id,'id')
         if(id){
            const options = {
                method:'POST',
@@ -19,7 +19,7 @@ export default function Chat(){
                body:JSON.stringify({id:id})
            }
            setIsLoading(true);
-           fetch(`http://localhost:3000/api/data`,options)
+           fetch(`${process.env.NEXT_PUBLIC_CHAT_API}/api/data`,options)
            .then((res)=>res.json())
            .then((data)=>{
             setData(data.data.dataArray)
@@ -29,7 +29,17 @@ export default function Chat(){
            .catch((e)=>console.log(e))
         }
        },[]);
-       console.log(data,'data')
+
+       useEffect(()=>{
+           if(localStorage.getItem('current_file')){
+              let filename = localStorage.getItem('current_file')
+              const filenameWithoutExt = filename.split(".")[0]
+              const indexName = slugify(filenameWithoutExt, {
+              lower: true, strict: true
+            })
+            setIndexName(indexName);
+           }
+       },[])
     return (
         <div className="container-fluid">
             <div className="bg-dark">

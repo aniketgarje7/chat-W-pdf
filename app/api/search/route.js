@@ -4,7 +4,7 @@ import  {downloadUrl} from '../../../lib/Firebase/getfirebase-file'
 
 export async function POST(req,res){
     const {query,indexName} = await req.json()
-    console.log(query,'query',indexName)
+
     let response;
     try{
          response = await getResponseByQuery(query,indexName)
